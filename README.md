@@ -22,7 +22,11 @@
 
 :heavy_check_mark: `public static TResult Sum<TResult>(this IEnumerable<TResult> source);`
 
+:heavy_check_mark: `public static TResult Sum<TResult>(this IEnumerable<TResult> source, Func<TSource, TResult> predicate);`
+
 :heavy_check_mark: `public static int Count<TSource>(this IEnumerable<TSource> source);`
+
+:heavy_check_mark: `public static int Count<TSource>(this IEnumerable<TSource> source, Func<TSource, TResult> predicate);`
 
 # Find in enumerable
 
@@ -30,17 +34,33 @@
 
 :heavy_check_mark: `public static TSource ElementAtOrDefault<TSource>(this IEnumerable<TSource> source, int index);`
 
+:heavy_check_mark: `public static TSource ElementAtOrDefault<TSource>(this IEnumerable<TSource> source, int index, TSource defaultValue);`
+
 :heavy_check_mark: `public static TSource First<TSource>(this IEnumerable<TSource> source);`
 
 :heavy_check_mark: `public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source);`
+
+:heavy_check_mark: `public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source, TSource defaultValue);`
+
+:heavy_check_mark: `public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate);`
+
+:heavy_check_mark: `public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, TSource defaultValue);`
 
 :heavy_check_mark: `public static TSource Last<TSource>(this IEnumerable<TSource> source);`
 
 :heavy_check_mark: `public static TSource LastOrDefault<TSource>(this IEnumerable<TSource> source);`
 
+:heavy_check_mark: `public static TSource LastOrDefault<TSource>(this IEnumerable<TSource> source, TSource defaultValue);`
+
+:heavy_check_mark: `public static TSource LastOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate);`
+
+:heavy_check_mark: `public static TSource LastOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, TSource defaultValue);`
+
 :heavy_check_mark: `public static TSource Single<TSource>(this IEnumerable<TSource> source);`
 
 :heavy_check_mark: `public static TSource SingleOrDefault<TSource>(this IEnumerable<TSource> source);`
+
+:heavy_check_mark: `public static TSource SingleOrDefault<TSource>(this IEnumerable<TSource> source, TSource defaultValue);`
 
 # Enumerable Chains
 
@@ -60,6 +80,8 @@
 
 :heavy_check_mark: `public static IEnumerable<TResult> Select<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector);`
 
+:heavy_check_mark: `public static IEnumerable<TResult> Select<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, int, TResult> selector);`
+
 :heavy_check_mark: `public static IEnumerable<TSource> Skip<TSource>(this IEnumerable<TSource> source, int count);`
 
 :heavy_check_mark: `public static IEnumerable<TSource> SkipWhile<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate);`
@@ -69,6 +91,8 @@
 :heavy_check_mark: `public static IEnumerable<TSource> TakeWhile<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate);`
 
 :heavy_check_mark: `public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate);`
+
+:heavy_check_mark: `public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source, Func<TSource, int, bool> predicate);`
 
 # ToXYZ
 

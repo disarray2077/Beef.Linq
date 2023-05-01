@@ -450,6 +450,43 @@ namespace System.Linq
 			return sum;
 		}
 
+		public static TResult Sum<TCollection, TSource, TPredicate, TResult>(this TCollection items, TPredicate predicate)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TPredicate : delegate TResult(TSource)
+			where TResult : operator TResult + TResult
+		{
+			return InternalSum<decltype(default(TCollection).GetEnumerator()), TSource, TPredicate, TResult>(items.GetEnumerator(), predicate);
+		}
+
+		public static TResult Sum<TEnum, TSource, TPredicate, TResult>(this TEnum items, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate TResult(TSource)
+			where TResult : operator TResult + TResult
+		{
+			return InternalSum<TEnum, TSource, TPredicate, TResult>(items, predicate);
+		}
+
+		static TResult InternalSum<TEnum, TSource, TPredicate, TResult>(TEnum items, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate TResult(TSource)
+			where TResult : operator TResult + TResult
+		{
+			TResult sum = ?;
+			using (var iterator = Iterator.Wrap(items))
+			{
+				var enumerator = iterator.[Friend]mEnum;
+				switch (enumerator.GetNext())
+				{
+				case .Ok(let val): sum = predicate(val);
+				case .Err: return default;
+				}
+
+				while (enumerator.GetNext() case .Ok(let val))
+					sum += predicate(val);
+			}
+			return sum;
+		}
+
 		public static int Count<TCollection, TSource>(this TCollection items)
 			where TCollection : concrete, IEnumerable<TSource>
 		{
@@ -477,6 +514,36 @@ namespace System.Linq
 				var enumerator = iterator.mEnum;
 				while (enumerator.GetNext() case .Ok)
 					count++;
+			}
+			return count;
+		}
+
+		public static int Count<TCollection, TSource, TPredicate>(this TCollection items, TPredicate predicate)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			return InternalCount<decltype(default(TCollection).GetEnumerator()), TSource, TPredicate>(items.GetEnumerator(), predicate);
+		}
+
+
+		public static int Count<TEnum, TSource, TPredicate>(this TEnum items, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			return InternalCount<TEnum, TSource, TPredicate>(items, predicate);
+		}
+
+		public static int InternalCount<TEnum, TSource, TPredicate>(TEnum items, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			var count = 0;
+			using (var iterator = Iterator.Wrap(items))
+			{
+				var enumerator = iterator.mEnum;
+				while (enumerator.GetNext() case .Ok(let val))
+					if (predicate(val))
+						count++;
 			}
 			return count;
 		}
@@ -541,6 +608,24 @@ namespace System.Linq
 			return default;
 		}
 
+		public static TSource ElementAtOrDefault<TCollection, TSource>(this TCollection items, int index, TSource defaultValue)
+			where TCollection : concrete, IEnumerable<TSource>
+		{
+			if (InternalElementAt<decltype(default(TCollection).GetEnumerator()), TSource>(items.GetEnumerator(), index, let val))
+				return val;
+
+			return defaultValue;
+		}
+
+		public static TSource ElementAtOrDefault<TEnum, TSource>(this TEnum items, int index, TSource defaultValue)
+			where TEnum : concrete, IEnumerator<TSource>
+		{
+			if (InternalElementAt<TEnum, TSource>(items, index, let val))
+				return val;
+
+			return defaultValue;
+		}
+
 		public static bool InternalFirst<TEnum, TSource>(TEnum items, out TSource val)
 			where TEnum : concrete, IEnumerator<TSource>
 		{
@@ -587,6 +672,79 @@ namespace System.Linq
 				return val;
 
 			return default;
+		}
+
+		public static TSource FirstOrDefault<TCollection, TSource>(this TCollection items, TSource defaultValue)
+			where TCollection : concrete, IEnumerable<TSource>
+		{
+			if (InternalFirst<decltype(default(TCollection).GetEnumerator()), TSource>(items.GetEnumerator(), let val))
+				return val;
+
+			return defaultValue;
+		}
+
+		public static TSource FirstOrDefault<TEnum, TSource>(this TEnum items, TSource defaultValue)
+			where TEnum : concrete, IEnumerator<TSource>
+		{
+			if (InternalFirst<TEnum, TSource>(items, let val))
+				return val;
+
+			return defaultValue;
+		}
+
+		public static bool InternalFirst<TEnum, TSource, TPredicate>(TEnum items, out TSource val, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			using (var iterator = Iterator.Wrap(items))
+			{
+				var enumerator = iterator.mEnum;
+				while (enumerator.GetNext() case .Ok(out val))
+					if (predicate(val))
+						return true;
+			}
+
+			return false;
+		}
+
+		public static TSource FirstOrDefault<TCollection, TSource, TPredicate>(this TCollection items, TPredicate predicate)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalFirst<decltype(default(TCollection).GetEnumerator()), TSource, TPredicate>(items.GetEnumerator(), let val, predicate))
+				return val;
+
+			return default;
+		}
+
+		public static TSource FirstOrDefault<TEnum, TSource, TPredicate>(this TEnum items, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalFirst<TEnum, TSource, TPredicate>(items, let val, predicate))
+				return val;
+
+			return default;
+		}
+
+		public static TSource FirstOrDefault<TCollection, TSource, TPredicate>(this TCollection items, TPredicate predicate, TSource defaultValue)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalFirst<decltype(default(TCollection).GetEnumerator()), TSource, TPredicate>(items.GetEnumerator(), let val, predicate))
+				return val;
+
+			return defaultValue;
+		}
+
+		public static TSource FirstOrDefault<TEnum, TSource, TPredicate>(this TEnum items, TPredicate predicate, TSource defaultValue)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalFirst<TEnum, TSource, TPredicate>(items, let val, predicate))
+				return val;
+
+			return defaultValue;
 		}
 
 		internal static bool InternalLast<TEnum, TSource>(TEnum items, out TSource val)
@@ -647,6 +805,88 @@ namespace System.Linq
 			return default;
 		}
 
+		public static TSource LastOrDefault<TCollection, TSource>(this TCollection items, TSource defaultValue)
+			where TCollection : concrete, IEnumerable<TSource>
+		{
+			if (InternalLast<decltype(default(TCollection).GetEnumerator()), TSource>(items.GetEnumerator(), let val))
+				return val;
+
+			return defaultValue;
+		}
+
+		public static TSource LastOrDefault<TEnum, TSource>(this TEnum items, TSource defaultValue)
+			where TEnum : concrete, IEnumerator<TSource>
+		{
+			if (InternalLast<TEnum, TSource>(items, let val))
+				return val;
+
+			return defaultValue;
+		}
+
+		internal static bool InternalLast<TEnum, TSource, TPredicate>(TEnum items, out TSource val, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			val = ?;
+
+			var found = false;
+			using (var iterator = Iterator.Wrap(items))
+			{
+				var enumerator = iterator.mEnum;
+				if (enumerator.GetNext() case .Ok(out val) && predicate(val))
+					found = true;
+
+				while (enumerator.GetNext() case .Ok(let temp))
+					if (predicate(val))
+						val = temp;
+			}
+
+			if (!found)
+				val = default;
+
+			return found;
+		}
+
+		public static TSource LastOrDefault<TCollection, TSource, TPredicate>(this TCollection items, TPredicate predicate)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalLast<decltype(default(TCollection).GetEnumerator()), TSource, TPredicate>(items.GetEnumerator(), let val, predicate))
+				return val;
+
+			return default;
+		}
+
+		public static TSource LastOrDefault<TEnum, TSource, TPredicate>(this TEnum items, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalLast<TEnum, TSource, TPredicate>(items, let val, predicate))
+				return val;
+
+			return default;
+		}
+
+		public static TSource LastOrDefault<TCollection, TSource, TPredicate>(this TCollection items, TPredicate predicate, TSource defaultValue)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalLast<decltype(default(TCollection).GetEnumerator()), TSource, TPredicate>(items.GetEnumerator(), let val, predicate))
+				return val;
+
+			return defaultValue;
+		}
+
+		public static TSource LastOrDefault<TEnum, TSource, TPredicate>(this TEnum items, TPredicate predicate, TSource defaultValue)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalLast<TEnum, TSource, TPredicate>(items, let val, predicate))
+				return val;
+
+			return defaultValue;
+		}
+
 		internal static bool InternalSingle<TEnum, TSource>(TEnum items, out TSource val)
 			where TEnum : concrete, IEnumerator<TSource>
 		{
@@ -701,6 +941,24 @@ namespace System.Linq
 				return val;
 
 			return default;
+		}
+
+		public static TSource SingleOrDefault<TCollection, TSource>(this TCollection items, TSource defaultValue)
+			where TCollection : concrete, IEnumerable<TSource>
+		{
+			if (InternalSingle<decltype(default(TCollection).GetEnumerator()), TSource>(items.GetEnumerator(), let val))
+				return val;
+
+			return defaultValue;
+		}
+
+		public static TSource SingleOrDefault<TEnum, TSource>(this TEnum items, TSource defaultValue)
+			where TEnum : concrete, IEnumerator<TSource>
+		{
+			if (InternalSingle<TEnum, TSource>(items, let val))
+				return val;
+
+			return defaultValue;
 		}
 
 		#endregion
@@ -790,6 +1048,56 @@ namespace System.Linq
 			return .(items, select);
 		}
 
+		struct IndexedSelectEnumerable<TSource, TEnum, TSelect, TResult> : Iterator<TEnum, TSource>, IEnumerable<TResult>
+			where TSelect : delegate TResult(TSource, int)
+			where TEnum : concrete, IEnumerator<TSource>
+		{
+			int mIndex;
+			TSelect mDlg;
+
+			public this(TEnum e, TSelect dlg) : base(e)
+			{
+				mIndex = 0;
+				mDlg = dlg;
+			}
+
+			Result<TResult> GetNext() mut
+			{
+				if (mEnum.GetNext() case .Ok(let val))
+					return mDlg(val, mIndex++);
+
+				return .Err;
+			}
+
+			public Enumerator GetEnumerator() => .(this);
+
+			public struct Enumerator : IEnumerator<TResult>
+			{
+				SelfOuter mEnum;
+				public this(SelfOuter enumerator)
+				{
+					mEnum = enumerator;
+				}
+				public Result<TResult> GetNext() mut => mEnum.GetNext();
+			}
+		}
+
+		public static IndexedSelectEnumerable<TSource, decltype(default(TCollection).GetEnumerator()), TSelect, TResult>
+			Select<TCollection, TSource, TSelect, TResult>(this TCollection items, TSelect select)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TSelect : delegate TResult(TSource, int)
+		{
+			return .(items.GetEnumerator(), select);
+		}
+
+		public static IndexedSelectEnumerable<TSource, TEnum, TSelect, TResult>
+			Select<TEnum, TSource, TSelect, TResult>(this TEnum items, TSelect select)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TSelect : delegate TResult(TSource, int)
+		{
+			return .(items, select);
+		}
+
 		struct WhereEnumerable<TSource, TEnum, TPredicate> : IEnumerable<TSource>, IDisposable
 			where TPredicate : delegate bool(TSource)
 			where TEnum : concrete, IEnumerator<TSource>
@@ -847,6 +1155,58 @@ namespace System.Linq
 			Where<TEnum, TSource, TPredicate>(this TEnum items, TPredicate predicate)
 			where TEnum : concrete, IEnumerator<TSource>
 			where TPredicate : delegate bool(TSource)
+		{
+			return .(items, predicate);
+		}
+
+		struct IndexedWhereEnumerable<TSource, TEnum, TPredicate> : Iterator<TEnum, TSource>, IEnumerable<TSource>
+			where TPredicate : delegate bool(TSource, int)
+			where TEnum : concrete, IEnumerator<TSource>
+		{
+			int mIndex;
+			TPredicate mPredicate;
+
+			public this(TEnum enumerator, TPredicate predicate) : base(enumerator)
+			{
+				mIndex = 0;
+				mPredicate = predicate;
+			}
+
+			Result<TSource> GetNext() mut
+			{
+				while (mEnum.GetNext() case .Ok(let val))
+					if (mPredicate(val, mIndex++))
+						return .Ok(val);
+
+				return .Err;
+			}
+
+			typealias TSelf = IndexedWhereEnumerable<TSource, TEnum, TPredicate>;
+			public Enumerator GetEnumerator() => .(this);
+
+			public struct Enumerator: IEnumerator<TSource>
+			{
+				TSelf mEnum;
+				public this(TSelf enumerator)
+				{
+					mEnum = enumerator;
+				}
+				public Result<TSource> GetNext() mut => mEnum.GetNext();
+			}
+		}
+
+		public static IndexedWhereEnumerable<TSource, decltype(default(TCollection).GetEnumerator()), TPredicate>
+			Where<TCollection, TSource, TPredicate>(this TCollection items, TPredicate predicate)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TPredicate : delegate bool(TSource, int)
+		{
+			return .(items.GetEnumerator(), predicate);
+		}
+
+		public static IndexedWhereEnumerable<TSource, TEnum, TPredicate>
+			Where<TEnum, TSource, TPredicate>(this TEnum items, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource, int)
 		{
 			return .(items, predicate);
 		}

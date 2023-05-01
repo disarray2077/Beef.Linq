@@ -163,11 +163,6 @@ namespace System.Linq
 				Test.Assert(actual == 10);
 			}
 			{
-				let data = scope List<int>() { 1, 2, 3, 4 };
-				let actual = data.Sum();
-				Test.Assert(actual == 10);
-			}
-			{
 				let data = scope List<int?>() { 1, null, 3, 4 };
 				let actual = data.Sum();
 				Test.Assert(actual == null);
@@ -176,6 +171,36 @@ namespace System.Linq
 				let data = scope List<int?>();
 				let actual = data.Sum();
 				Test.Assert(actual == null);
+			}
+			{
+				let data = scope List<int>() { 1, 2, 3, 4 };
+				let actual = data.Sum((i) => i % 2);
+				Test.Assert(actual == 2);
+			}
+			{
+				let data = scope List<int?>() { 1, 2, null, 4 };
+				let actual = data.Sum((i) => (i ?? 0) % 2);
+				Test.Assert(actual == 1);
+			}
+			{
+				let data = scope List<int?>();
+				let actual = data.Sum((i) => i % 2);
+				Test.Assert(actual == null);
+			}
+		}
+
+		[Test]
+		public static void Count()
+		{
+			{
+				let data = scope List<int>() { 1, 2, 3, 4 };
+				let actual = data.Count();
+				Test.Assert(actual == 4);
+			}
+			{
+				let data = scope List<int>() { 1, 2, 3, 4 };
+				let actual = data.Count((i) => i % 2 == 0);
+				Test.Assert(actual == 2);
 			}
 		}
 
@@ -199,8 +224,18 @@ namespace System.Linq
 		public static void FirstOrDefault()
 		{
 			let data = scope List<int>();
-			let actual = data.FirstOrDefault();
+
+			var actual = data.FirstOrDefault();
 			Test.Assert(actual == default);
+
+			actual = data.FirstOrDefault(-1);
+			Test.Assert(actual == -1);
+			
+			actual = data.FirstOrDefault((i) => i == 1);
+			Test.Assert(actual == default);
+			
+			actual = data.FirstOrDefault((i) => i == 1, -1);
+			Test.Assert(actual == -1);
 		}
 
 		[Test]
@@ -215,8 +250,18 @@ namespace System.Linq
 		public static void LastOrDefault()
 		{
 			let data = scope List<int>();
-			let actual = data.LastOrDefault();
+
+			var actual = data.LastOrDefault();
 			Test.Assert(actual == default);
+
+			actual = data.LastOrDefault(-1);
+			Test.Assert(actual == -1);
+			
+			actual = data.LastOrDefault((i) => i == 1);
+			Test.Assert(actual == default);
+			
+			actual = data.LastOrDefault((i) => i == 1, -1);
+			Test.Assert(actual == -1);
 		}
 
 		[Test]
@@ -299,23 +344,43 @@ namespace System.Linq
 		[Test]
 		public static void Select()
 		{
-			let data = scope List<(int x, int y, float z, float w)>() { (1, 2, 3, 4), (4, 3, 2, 1) };
-			let actual = data.Select((it) => (x: it.x, y: it.y)).ToList(.. scope .());
-			let expected = scope List<(int x, int y)>();
-			expected.Add((1, 2));
-			expected.Add((4, 3));
+			{
+				let data = scope List<(int x, int y, float z, float w)>() { (1, 2, 3, 4), (4, 3, 2, 1) };
+				let actual = data.Select((it) => (x: it.x, y: it.y)).ToList(.. scope .());
+				let expected = scope List<(int x, int y)>();
+				expected.Add((1, 2));
+				expected.Add((4, 3));
+	
+				Test.Assert(actual.Count == 2);
+				Test.Assert(actual.SequenceEquals(expected));
+			}
+			{
+				let data = scope List<(int x, int y, float z, float w)>() { (1, 2, 3, 4), (4, 3, 2, 1) };
+				let actual = data.Select((it, i) => (x: it.x, y: it.y, index: i)).ToList(.. scope .());
+				let expected = scope List<(int x, int y, int index)>();
+				expected.Add((1, 2, 0));
+				expected.Add((4, 3, 1));
 
-			Test.Assert(actual.Count == 2);
-			Test.Assert(actual.SequenceEquals(expected));
+				Test.Assert(actual.Count == 2);
+				Test.Assert(actual.SequenceEquals(expected));
+			}
 		}
 
 		[Test]
 		public static void Where()
 		{
-			let data = scope List<(int x, int y, float z, float w)>() { (1, 2, 3, 4), (4, 3, 2, 1) };
-			let actual = data.Where((it) => it.x == 1).ToList(.. scope .());
-			Test.Assert(actual.Count == 1);
-			Test.Assert(actual[0] == (1, 2, 3, 4));
+			{
+				let data = scope List<(int x, int y, float z, float w)>() { (1, 2, 3, 4), (4, 3, 2, 1) };
+				let actual = data.Where((it) => it.x == 1).ToList(.. scope .());
+				Test.Assert(actual.Count == 1);
+				Test.Assert(actual[0] == (1, 2, 3, 4));
+			}
+			{
+				let data = scope List<(int x, int y, float z, float w)>() { (1, 2, 3, 4), (4, 3, 2, 1) };
+				let actual = data.Where((it, i) => it.w == 1 && i == 1).ToList(.. scope .());
+				Test.Assert(actual.Count == 1);
+				Test.Assert(actual[0] == (4, 3, 2, 1));
+			}
 		}
 
 		[Test]
