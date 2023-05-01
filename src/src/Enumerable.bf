@@ -551,6 +551,7 @@ namespace System.Linq
 					return true;
 			}
 
+			val = default;
 			return false;
 		}
 
@@ -591,6 +592,8 @@ namespace System.Linq
 		internal static bool InternalLast<TEnum, TSource>(TEnum items, out TSource val)
 			where TEnum : concrete, IEnumerator<TSource>
 		{
+			val = ?;
+
 			var found = false;
 			using (var iterator = Iterator.Wrap(items))
 			{
@@ -601,6 +604,9 @@ namespace System.Linq
 				while (enumerator.GetNext() case .Ok(let temp))
 					val = temp;
 			}
+
+			if (!found)
+				val = default;
 
 			return found;
 		}
@@ -657,6 +663,7 @@ namespace System.Linq
 				}
 			}
 
+			val = default;
 			return false;
 		}
 
@@ -732,7 +739,7 @@ namespace System.Linq
 
 		extension Iterator<TEnum, TSource> : IDisposable where TEnum : IDisposable
 		{
-			public void Dispose() mut => mEnum.Dispose();
+			public new void Dispose() mut => mEnum.Dispose();
 		}
 
 		struct SelectEnumerable<TSource, TEnum, TSelect, TResult> : Iterator<TEnum, TSource>, IEnumerable<TResult>
@@ -1624,7 +1631,7 @@ namespace System.Linq
 		public extension DynamicArray<TValue> : IDisposable
 			where TValue : IDisposable
 		{
-			public void Dispose() mut
+			public new void Dispose() mut
 			{
 				for (var it in mPtr)
 					it.Dispose();
@@ -1799,7 +1806,7 @@ namespace System.Linq
 		extension GroupByEnumerable<TSource, TEnum, TKey, TKeyDlg, TValue, TValueDlg>
 			where TValueDlg : Object
 		{
-			public void Dispose() mut
+			public new void Dispose() mut
 			{
 				base.Dispose();
 				DeleteAndNullify!(mValueDlg);
@@ -2562,8 +2569,11 @@ namespace System.Linq
 
 					let count = mValues.Length;
 					mMap = new int[count];
-					for (int i = 0; i < count; i++) mMap[i] = i;
-					QuickSort( 0, count - 1);
+					if (count > 0)
+					{
+						for (int i = 0; i < count; i++) mMap[i] = i;
+						QuickSort(0, count - 1);
+					}
 				}
 
 				if (mIndex < mValues.Length)
@@ -2806,7 +2816,7 @@ namespace System.Linq
 		extension SelectManyEnumerable<TSource, TEnum, TSelect, TResult, TEnum2>
 			where TSelect : Object
 		{
-			public void Dispose() mut
+			public new void Dispose() mut
 			{
 				base.Dispose();
 				DeleteAndNullify!(mSelect);

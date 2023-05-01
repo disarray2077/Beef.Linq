@@ -55,20 +55,24 @@ namespace System.Linq
 		}
 
 
-		struct ContainsTest : IEnumerable<int>, IEnumerator<int>
+		struct ContainsTest : IEnumerable<int>
 		{
-			int mState = 0;
-			public Self GetEnumerator()
+			public Enumerator GetEnumerator()
 			{
-				return this;
+				return .();
 			}
 
-			public Result<int> GetNext() mut
+			struct Enumerator : IEnumerator<int>
 			{
-				if (mState > 3)
-					return .Err;
+				int mState = 0;
 
-				return .Ok(mState++);
+				public Result<int> GetNext() mut
+				{
+					if (mState > 3)
+						return .Err;
+	
+					return .Ok(mState++);
+				}
 			}
 		}
 
