@@ -662,6 +662,40 @@ namespace System.Linq
 			Runtime.FatalError("Sequence contained no elements.");
 		}
 
+		public static bool InternalFirst<TEnum, TSource, TPredicate>(TEnum items, out TSource val, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			using (var iterator = Iterator.Wrap(items))
+			{
+				var enumerator = iterator.mEnum;
+				while (enumerator.GetNext() case .Ok(out val))
+					if (predicate(val))
+						return true;
+			}
+
+			val = default;
+			return false;
+		}
+
+		public static TSource First<TCollection, TSource, TPredicate>(this TCollection items, TPredicate predicate)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalFirst<decltype(default(TCollection).GetEnumerator()), TSource, TPredicate>(items.GetEnumerator(), let val, predicate))
+				return val;
+			Runtime.FatalError("Sequence contained no elements.");
+		}
+
+		public static TSource First<TEnum, TSource, TPredicate>(this TEnum items, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalFirst<TEnum, TSource, TPredicate>(items, let val, predicate))
+				return val;
+			Runtime.FatalError("Sequence contained no elements.");
+		}
+
 		public static TSource FirstOrDefault<TCollection, TSource>(this TCollection items)
 			where TCollection : concrete, IEnumerable<TSource>
 		{
@@ -696,21 +730,6 @@ namespace System.Linq
 				return val;
 
 			return defaultValue;
-		}
-
-		public static bool InternalFirst<TEnum, TSource, TPredicate>(TEnum items, out TSource val, TPredicate predicate)
-			where TEnum : concrete, IEnumerator<TSource>
-			where TPredicate : delegate bool(TSource)
-		{
-			using (var iterator = Iterator.Wrap(items))
-			{
-				var enumerator = iterator.mEnum;
-				while (enumerator.GetNext() case .Ok(out val))
-					if (predicate(val))
-						return true;
-			}
-
-			return false;
 		}
 
 		public static TSource FirstOrDefault<TCollection, TSource, TPredicate>(this TCollection items, TPredicate predicate)
@@ -793,6 +812,50 @@ namespace System.Linq
 			Runtime.FatalError("Sequence contained no elements.");
 		}
 
+		internal static bool InternalLast<TEnum, TSource, TPredicate>(TEnum items, out TSource val, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			val = ?;
+
+			var found = false;
+			using (var iterator = Iterator.Wrap(items))
+			{
+				var enumerator = iterator.mEnum;
+				if (enumerator.GetNext() case .Ok(out val) && predicate(val))
+					found = true;
+
+				while (enumerator.GetNext() case .Ok(let temp))
+					if (predicate(val))
+						val = temp;
+			}
+
+			if (!found)
+				val = default;
+
+			return found;
+		}
+
+		public static TSource Last<TCollection, TSource, TPredicate>(this TCollection items, TPredicate predicate)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalLast<decltype(default(TCollection).GetEnumerator()), TSource>(items.GetEnumerator(), let val))
+				return val;
+
+			Runtime.FatalError("Sequence contained no elements.");
+		}
+
+		public static TSource Last<TEnum, TSource, TPredicate>(this TEnum items, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalLast<TEnum, TSource>(items, let val))
+				return val;
+
+			Runtime.FatalError("Sequence contained no elements.");
+		}
+
 		public static TSource LastOrDefault<TCollection, TSource>(this TCollection items)
 			where TCollection : concrete, IEnumerable<TSource>
 		{
@@ -827,30 +890,6 @@ namespace System.Linq
 				return val;
 
 			return defaultValue;
-		}
-
-		internal static bool InternalLast<TEnum, TSource, TPredicate>(TEnum items, out TSource val, TPredicate predicate)
-			where TEnum : concrete, IEnumerator<TSource>
-			where TPredicate : delegate bool(TSource)
-		{
-			val = ?;
-
-			var found = false;
-			using (var iterator = Iterator.Wrap(items))
-			{
-				var enumerator = iterator.mEnum;
-				if (enumerator.GetNext() case .Ok(out val) && predicate(val))
-					found = true;
-
-				while (enumerator.GetNext() case .Ok(let temp))
-					if (predicate(val))
-						val = temp;
-			}
-
-			if (!found)
-				val = default;
-
-			return found;
 		}
 
 		public static TSource LastOrDefault<TCollection, TSource, TPredicate>(this TCollection items, TPredicate predicate)
@@ -931,6 +970,50 @@ namespace System.Linq
 			Runtime.FatalError("Sequence contained no elements.");
 		}
 
+		internal static bool InternalSingle<TEnum, TSource, TPredicate>(TEnum items, out TSource val, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			using (var iterator = Iterator.Wrap(items))
+			{
+				var enumerator = iterator.mEnum;
+
+				while (enumerator.GetNext() case .Ok(out val))
+				{
+					if (!predicate(val))
+						continue;
+
+					if (enumerator.GetNext() case .Err)
+						return true;
+
+					Runtime.FatalError("Sequence matched more than one element.");
+				}
+			}
+
+			val = default;
+			return false;
+		}
+
+		public static TSource Single<TCollection, TSource, TPredicate>(this TCollection items, TPredicate predicate)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalSingle<decltype(default(TCollection).GetEnumerator()), TSource, TPredicate>(items.GetEnumerator(), let val, predicate))
+				return val;
+
+			Runtime.FatalError("Sequence contained no elements.");
+		}
+
+		public static TSource Single<TEnum, TSource, TPredicate>(this TEnum items, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalSingle<TEnum, TSource, TPredicate>(items, let val, predicate))
+				return val;
+
+			Runtime.FatalError("Sequence contained no elements.");
+		}
+
 		public static TSource SingleOrDefault<TCollection, TSource>(this TCollection items)
 			where TCollection : concrete, IEnumerable<TSource>
 		{
@@ -962,6 +1045,46 @@ namespace System.Linq
 			where TEnum : concrete, IEnumerator<TSource>
 		{
 			if (InternalSingle<TEnum, TSource>(items, let val))
+				return val;
+
+			return defaultValue;
+		}
+
+		public static TSource SingleOrDefault<TCollection, TSource, TPredicate>(this TCollection items, TPredicate predicate)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalSingle<decltype(default(TCollection).GetEnumerator()), TSource, TPredicate>(items.GetEnumerator(), let val, predicate))
+				return val;
+
+			return default;
+		}
+
+		public static TSource SingleOrDefault<TEnum, TSource, TPredicate>(this TEnum items, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalSingle<TEnum, TSource, TPredicate>(items, let val, predicate))
+				return val;
+
+			return default;
+		}
+
+		public static TSource SingleOrDefault<TCollection, TSource, TPredicate>(this TCollection items, TPredicate predicate, TSource defaultValue)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalSingle<decltype(default(TCollection).GetEnumerator()), TSource, TPredicate>(items.GetEnumerator(), let val, predicate))
+				return val;
+
+			return defaultValue;
+		}
+
+		public static TSource SingleOrDefault<TEnum, TSource, TPredicate>(this TEnum items, TPredicate predicate, TSource defaultValue)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
+		{
+			if (InternalSingle<TEnum, TSource, TPredicate>(items, let val, predicate))
 				return val;
 
 			return defaultValue;
@@ -3207,20 +3330,21 @@ namespace System.Linq
 			return .(items.GetEnumerator(), select);
 		}
 
-		/*struct OfTypeEnumerable<TSource, TEnum, TOf> : Iterator<TEnum, TSource>, IEnumerator<TOf>, IEnumerable<TOf>
+		struct OfTypeEnumerable<TSource, TEnum, TResult> : Iterator<TEnum, TSource>, IEnumerator<TResult>, IEnumerable<TResult>
 			where TEnum : concrete, IEnumerator<TSource>
 			where TSource : class
+			where TResult : class
 		{
 			public this(TEnum enumerator) : base(enumerator)
 			{
 			}
 
-			public Result<TOf> GetNext() mut
+			public Result<TResult> GetNext() mut
 			{
 				while (mEnum.GetNext() case .Ok(let val))
 				{
-					if (val is TOf)
-						return .Ok(*(TOf*)Internal.UnsafeCastToPtr(val));
+					if (let casted = val as TResult)
+						return .Ok(casted);
 				}
 				return .Err;
 			}
@@ -3231,13 +3355,68 @@ namespace System.Linq
 			}
 		}
 
-		public static OfTypeEnumerable<TSource, decltype(default(TCollection).GetEnumerator()), TOf>
-			OfType<TCollection, TSource, TOf>(this TCollection items)
+		public static OfTypeEnumerable<TSource, decltype(default(TCollection).GetEnumerator()), TResult>
+			OfType<TResult, TCollection, TSource>(this TCollection items)
 			where TCollection : concrete, IEnumerable<TSource>
 			where TSource : class
+			where TResult : class
 		{
 			return .(items.GetEnumerator());
-		}*/
+		}
+
+		public static OfTypeEnumerable<TSource, TEnum, TResult>
+			OfType<TResult, TEnum, TSource>(this TEnum items)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TSource : class
+			where TResult : class
+		{
+			return .(items);
+		}
+
+		struct CastEnumerable<TSource, TEnum, TResult> : Iterator<TEnum, TSource>, IEnumerator<TResult>, IEnumerable<TResult>
+			where TEnum : concrete, IEnumerator<TSource>
+			where TSource : class
+			where TResult : class
+		{
+			public this(TEnum enumerator) : base(enumerator)
+			{
+			}
+
+			public Result<TResult> GetNext() mut
+			{
+				while (mEnum.GetNext() case .Ok(let val))
+				{
+					if (let casted = val as TResult)
+						return .Ok(casted);
+
+					Runtime.FatalError("Specified cast is not valid.");
+				}
+				return .Err;
+			}
+
+			public Self GetEnumerator()
+			{
+				return this;
+			}
+		}
+
+		public static CastEnumerable<TSource, decltype(default(TCollection).GetEnumerator()), TResult>
+			Cast<TResult, TCollection, TSource>(this TCollection items)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TSource : class
+			where TResult : class
+		{
+			return .(items.GetEnumerator());
+		}
+
+		public static CastEnumerable<TSource, TEnum, TResult>
+			Cast<TResult, TEnum, TSource>(this TEnum items)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TSource : class
+			where TResult : class
+		{
+			return .(items);
+		}
 
 
 	}

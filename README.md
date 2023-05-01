@@ -38,6 +38,8 @@
 
 :heavy_check_mark: `public static TSource First<TSource>(this IEnumerable<TSource> source);`
 
+:heavy_check_mark: `public static TSource First<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate);`
+
 :heavy_check_mark: `public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source);`
 
 :heavy_check_mark: `public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source, TSource defaultValue);`
@@ -47,6 +49,8 @@
 :heavy_check_mark: `public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, TSource defaultValue);`
 
 :heavy_check_mark: `public static TSource Last<TSource>(this IEnumerable<TSource> source);`
+
+:heavy_check_mark: `public static TSource Last<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate);`
 
 :heavy_check_mark: `public static TSource LastOrDefault<TSource>(this IEnumerable<TSource> source);`
 
@@ -58,9 +62,15 @@
 
 :heavy_check_mark: `public static TSource Single<TSource>(this IEnumerable<TSource> source);`
 
+:heavy_check_mark: `public static TSource Single<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate);`
+
 :heavy_check_mark: `public static TSource SingleOrDefault<TSource>(this IEnumerable<TSource> source);`
 
 :heavy_check_mark: `public static TSource SingleOrDefault<TSource>(this IEnumerable<TSource> source, TSource defaultValue);`
+
+:heavy_check_mark: `public static TSource SingleOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate);`
+
+:heavy_check_mark: `public static TSource SingleOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, TSource defaultValue);`
 
 # Enumerable Chains
 
@@ -93,6 +103,10 @@
 :heavy_check_mark: `public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate);`
 
 :heavy_check_mark: `public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source, Func<TSource, int, bool> predicate);`
+
+:heavy_check_mark: `public static IEnumerable<TResult> Cast<TResult>(this IEnumerable source);`
+
+:heavy_check_mark: `public static IEnumerable<TResult> OfType<TResult>(this IEnumerable source);`
 
 # ToXYZ
 

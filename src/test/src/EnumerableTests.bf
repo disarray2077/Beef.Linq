@@ -209,9 +209,16 @@ namespace System.Linq
 		[Test]
 		public static void First()
 		{
-			let data = scope List<int>() { 1, 2, 3 };
-			let actual = data.First();
-			Test.Assert(actual == 1);
+			{
+				let data = scope List<int>() { 1, 2, 3 };
+				let actual = data.First();
+				Test.Assert(actual == 1);
+			}
+			{
+				let data = scope List<int>() { 1, 2, 3 };
+				let actual = data.First((i) => i % 2 == 0);
+				Test.Assert(actual == 2);
+			}
 		}
 
 		[Test]
@@ -235,9 +242,16 @@ namespace System.Linq
 		[Test]
 		public static void Last()
 		{
-			let data = scope List<int>() { 1, 2, 3 };
-			let actual = data.Last();
-			Test.Assert(actual == 3);
+			{
+				let data = scope List<int>() { 1, 2, 3 };
+				let actual = data.Last();
+				Test.Assert(actual == 3);
+			}
+			{
+				let data = scope List<int>() { 1, 2, 3 };
+				let actual = data.Last((i) => i % 2 != 0);
+				Test.Assert(actual == 3);
+			}
 		}
 
 		[Test]
@@ -784,6 +798,31 @@ namespace System.Linq
 				Test.Assert(actual.SequenceEquals(scope int[](0, 1, 2, 3, 4, 5, 6, 7, 8, 9)));
 				Test.Assert(actual2.SequenceEquals(scope int[](0, 1, 2, 3, 4, 5, 6, 7, 8, 9)));
 			}
+		}
+
+		[Test]
+		public static void OfType()
+		{
+			let data = scope List<Object>() { 1, "2", "3", 3 };
+			let actual = data.OfType<String...>().ToList(.. scope .());
+
+			Test.Assert(actual.SequenceEquals(String[?]("2", "3")));
+		}
+
+		[Test]
+		public static void Cast()
+		{
+			let data = scope List<Object>() { "1", "2" };
+			let actual = data.Cast<String...>().ToList(.. scope .());
+
+			Test.Assert(actual.SequenceEquals(String[?]("1", "2")));
+		}
+
+		[Test(ShouldFail=true)]
+		public static void CastFail()
+		{
+			let data = scope List<Object>() { 1, "2", "3", 3 };
+			data.Cast<String...>().ToList(.. scope .());
 		}
 
 #region Failures
