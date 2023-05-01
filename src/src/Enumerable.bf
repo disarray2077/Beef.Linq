@@ -1150,7 +1150,7 @@ namespace System.Linq
 
 			public Enumerator GetEnumerator() => .(this);
 
-			public struct Enumerator : IEnumerator<TResult>
+			public struct Enumerator : IEnumerator<TResult>, IDisposable
 			{
 				SelfOuter mEnum;
 				public this(SelfOuter enumerator)
@@ -1158,6 +1158,7 @@ namespace System.Linq
 					mEnum = enumerator;
 				}
 				public Result<TResult> GetNext() mut => mEnum.GetNext();
+				public void Dispose() mut => mEnum.Dispose();
 			}
 		}
 
@@ -1200,7 +1201,7 @@ namespace System.Linq
 
 			public Enumerator GetEnumerator() => .(this);
 
-			public struct Enumerator : IEnumerator<TResult>
+			public struct Enumerator : IEnumerator<TResult>, IDisposable
 			{
 				SelfOuter mEnum;
 				public this(SelfOuter enumerator)
@@ -1208,6 +1209,7 @@ namespace System.Linq
 					mEnum = enumerator;
 				}
 				public Result<TResult> GetNext() mut => mEnum.GetNext();
+				public void Dispose() mut => mEnum.Dispose();
 			}
 		}
 
@@ -1313,7 +1315,7 @@ namespace System.Linq
 			typealias TSelf = IndexedWhereEnumerable<TSource, TEnum, TPredicate>;
 			public Enumerator GetEnumerator() => .(this);
 
-			public struct Enumerator: IEnumerator<TSource>
+			public struct Enumerator: IEnumerator<TSource>, IDisposable
 			{
 				TSelf mEnum;
 				public this(TSelf enumerator)
@@ -1321,6 +1323,7 @@ namespace System.Linq
 					mEnum = enumerator;
 				}
 				public Result<TSource> GetNext() mut => mEnum.GetNext();
+				public void Dispose() mut => mEnum.Dispose();
 			}
 		}
 
@@ -1350,7 +1353,7 @@ namespace System.Linq
 				mCount = count;
 			}
 
-			public Result<TSource> GetNext() mut
+			Result<TSource> GetNext() mut
 			{
 				while (mCount-- > 0 && mEnum.GetNext() case .Ok(let val))
 					return val;
@@ -1360,7 +1363,7 @@ namespace System.Linq
 
 			public Enumerator GetEnumerator() => .(this);
 
-			public struct Enumerator : IEnumerator<TSource>
+			public struct Enumerator : IEnumerator<TSource>, IDisposable
 			{
 				SelfOuter mEnum;
 				public this(SelfOuter enumerator)
@@ -1368,6 +1371,7 @@ namespace System.Linq
 					mEnum = enumerator;
 				}
 				public Result<TSource> GetNext() mut => mEnum.GetNext();
+				public void Dispose() mut => mEnum.Dispose();
 			}
 		}
 
@@ -1407,7 +1411,7 @@ namespace System.Linq
 
 			public Enumerator GetEnumerator() => .(this);
 
-			public struct Enumerator : IEnumerator<TSource>
+			public struct Enumerator : IEnumerator<TSource>, IDisposable
 			{
 				SelfOuter mEnum;
 				public this(SelfOuter enumerator)
@@ -1415,6 +1419,7 @@ namespace System.Linq
 					mEnum = enumerator;
 				}
 				public Result<TSource> GetNext() mut => mEnum.GetNext();
+				public void Dispose() mut => mEnum.Dispose();
 			}
 		}
 
@@ -1444,7 +1449,7 @@ namespace System.Linq
 				mCount = count;
 			}
 
-			public Result<TSource> GetNext() mut
+			Result<TSource> GetNext() mut
 			{
 				while (mCount-- > 0 && mEnum.GetNext() case .Ok(?)) { }
 
@@ -1456,7 +1461,7 @@ namespace System.Linq
 
 			public Enumerator GetEnumerator() => .(this);
 
-			public struct Enumerator : IEnumerator<TSource>
+			public struct Enumerator : IEnumerator<TSource>, IDisposable
 			{
 				SelfOuter mEnum;
 				public this(SelfOuter enumerator)
@@ -1464,6 +1469,7 @@ namespace System.Linq
 					mEnum = enumerator;
 				}
 				public Result<TSource> GetNext() mut => mEnum.GetNext();
+				public void Dispose() mut => mEnum.Dispose();
 			}
 		}
 
@@ -1493,7 +1499,7 @@ namespace System.Linq
 				mPredicate = predicate;
 			}
 
-			public Result<TSource> GetNext() mut
+			Result<TSource> GetNext() mut
 			{
 				switch (mState) {
 				case 0:
@@ -1514,7 +1520,7 @@ namespace System.Linq
 
 			public Enumerator GetEnumerator() => .(this);
 
-			public struct Enumerator : IEnumerator<TSource>
+			public struct Enumerator : IEnumerator<TSource>, IDisposable
 			{
 				SelfOuter mEnum;
 				public this(SelfOuter enumerator)
@@ -1522,6 +1528,7 @@ namespace System.Linq
 					mEnum = enumerator;
 				}
 				public Result<TSource> GetNext() mut => mEnum.GetNext();
+				public void Dispose() mut => mEnum.Dispose();
 			}
 		}
 
@@ -1552,7 +1559,7 @@ namespace System.Linq
 				mDefaultValue = defaultValue;
 			}
 
-			public Result<TSource> GetNext() mut
+			Result<TSource> GetNext() mut
 			{
 				switch (mState) {
 				case 0:
@@ -1573,7 +1580,7 @@ namespace System.Linq
 
 			public Enumerator GetEnumerator() => .(this);
 
-			public struct Enumerator : IEnumerator<TSource>
+			public struct Enumerator : IEnumerator<TSource>, IDisposable
 			{
 				SelfOuter mEnum;
 				public this(SelfOuter enumerator)
@@ -1581,6 +1588,7 @@ namespace System.Linq
 					mEnum = enumerator;
 				}
 				public Result<TSource> GetNext() mut => mEnum.GetNext();
+				public void Dispose() mut => mEnum.Dispose();
 			}
 		}
 
@@ -1628,7 +1636,7 @@ namespace System.Linq
 				mEnum = default;
 			}
 
-			public Result<TSource> GetNext() mut
+			Result<TSource> GetNext() mut
 			{
 				switch (mState) {
 				case 0:
@@ -1752,7 +1760,7 @@ namespace System.Linq
 			return .(items.GetEnumerator());
 		}
 
-		struct MapEnumerable<TSource, TEnum, TResult> : Iterator<TEnum, TSource>, IEnumerator<TResult>, IEnumerable<TResult>
+		struct MapEnumerable<TSource, TEnum, TResult> : Iterator<TEnum, TSource>, IEnumerable<TResult>
 			where bool : operator TSource < TSource
 			where TSource : operator TSource - TSource
 			where TResult : operator TResult + TResult
@@ -1774,7 +1782,7 @@ namespace System.Linq
 				mMapScale = 1f / (mapMax - mapMin);
 			}
 
-			public Result<TResult> GetNext() mut
+			Result<TResult> GetNext() mut
 			{
 				switch (mState) {
 				case 0:
@@ -1813,10 +1821,9 @@ namespace System.Linq
 				return .Err;
 			}
 
-			/*typealias SelfOuter = MapEnumerable<TSource, TEnum, TResult>;
 			public Enumerator GetEnumerator() => .(this);
 
-			public struct Enumerator: IEnumerator<TResult>
+			public struct Enumerator: IEnumerator<TResult>, IDisposable
 			{
 				SelfOuter mEnum;
 				public this(SelfOuter enumerator)
@@ -1824,9 +1831,8 @@ namespace System.Linq
 					mEnum = enumerator;
 				}
 				public Result<TResult> GetNext() mut => mEnum.GetNext();
-			}*/
-
-			public Self GetEnumerator() => this;
+				public void Dispose() mut => mEnum.Dispose();
+			}
 		}
 
 		public static MapEnumerable<TSource, decltype(default(TCollection).GetEnumerator()), TResult>
@@ -3330,7 +3336,7 @@ namespace System.Linq
 			return .(items.GetEnumerator(), select);
 		}
 
-		struct OfTypeEnumerable<TSource, TEnum, TResult> : Iterator<TEnum, TSource>, IEnumerator<TResult>, IEnumerable<TResult>
+		struct OfTypeEnumerable<TSource, TEnum, TResult> : Iterator<TEnum, TSource>, IEnumerable<TResult>
 			where TEnum : concrete, IEnumerator<TSource>
 			where TSource : class
 			where TResult : class
@@ -3339,7 +3345,7 @@ namespace System.Linq
 			{
 			}
 
-			public Result<TResult> GetNext() mut
+			Result<TResult> GetNext() mut
 			{
 				while (mEnum.GetNext() case .Ok(let val))
 				{
@@ -3349,9 +3355,17 @@ namespace System.Linq
 				return .Err;
 			}
 
-			public Self GetEnumerator()
+			public Enumerator GetEnumerator() => .(this);
+
+			public struct Enumerator : IEnumerator<TResult>, IDisposable
 			{
-				return this;
+				SelfOuter mEnum;
+				public this(SelfOuter enumerator)
+				{
+					mEnum = enumerator;
+				}
+				public Result<TResult> GetNext() mut => mEnum.GetNext();
+				public void Dispose() mut => mEnum.Dispose();
 			}
 		}
 
@@ -3373,7 +3387,7 @@ namespace System.Linq
 			return .(items);
 		}
 
-		struct CastEnumerable<TSource, TEnum, TResult> : Iterator<TEnum, TSource>, IEnumerator<TResult>, IEnumerable<TResult>
+		struct CastEnumerable<TSource, TEnum, TResult> : Iterator<TEnum, TSource>, IEnumerable<TResult>
 			where TEnum : concrete, IEnumerator<TSource>
 			where TSource : class
 			where TResult : class
@@ -3382,7 +3396,7 @@ namespace System.Linq
 			{
 			}
 
-			public Result<TResult> GetNext() mut
+			Result<TResult> GetNext() mut
 			{
 				while (mEnum.GetNext() case .Ok(let val))
 				{
@@ -3394,9 +3408,17 @@ namespace System.Linq
 				return .Err;
 			}
 
-			public Self GetEnumerator()
+			public Enumerator GetEnumerator() => .(this);
+
+			public struct Enumerator : IEnumerator<TResult>, IDisposable
 			{
-				return this;
+				SelfOuter mEnum;
+				public this(SelfOuter enumerator)
+				{
+					mEnum = enumerator;
+				}
+				public Result<TResult> GetNext() mut => mEnum.GetNext();
+				public void Dispose() mut => mEnum.Dispose();
 			}
 		}
 

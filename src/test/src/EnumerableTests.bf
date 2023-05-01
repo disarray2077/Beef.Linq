@@ -879,7 +879,17 @@ namespace System.Linq
 			let actual = test1.Reverse().Where((x) => x > 0 && x % 2 == 0).Sum();
 
 			Test.Assert(actual == 46);
-		}	
+		}
+
+		[Test, DisableObjectAccessChecks]
+		public static void marsejMemoryLeak1()
+		{
+			let l = scope List<int>(){10, 11, 10, 12, 13, 14, -1};
+			let r = l.Reverse();
+			let sum = r.Take(2).Sum();
+			Test.Assert(r.[Friend]mCopyValues.IsDeleted());
+			Test.Assert(sum == 13);
+		}
 #endregion
 	}
 }
