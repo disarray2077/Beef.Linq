@@ -23,7 +23,9 @@ namespace System.Linq
 
 			public static EmptyEnumerable<TSource> Empty<TSource>() => .();
 
-			public struct RangeEnumerable<TSource> : IEnumerable<TSource> where TSource : operator TSource + int
+			public struct RangeEnumerable<TSource> : IEnumerable<TSource>
+				where TSource : operator TSource + TSource
+				where TSource : operator explicit int
 			{
 				TSource mStart;
 				TSource mEnd;
@@ -53,7 +55,7 @@ namespace System.Linq
 							return .Err;
 
 						let next = mCurrent;
-						mCurrent = mCurrent + 1;
+						mCurrent = mCurrent + (TSource)1;
 						return .Ok(next);
 					}
 				}
@@ -61,15 +63,16 @@ namespace System.Linq
 
 			public static RangeEnumerable<TSource>
 				Range<TSource>(TSource count)
-				where TSource : operator TSource + int
+				where TSource : operator TSource + TSource
+				where TSource : operator explicit int
 			{
 				return .(default, count);
 			}
 
 			public static RangeEnumerable<TSource>
 				Range<TSource>(TSource start, TSource end)
-				where TSource : operator TSource + int
 				where TSource : operator TSource + TSource
+				where TSource : operator explicit int
 			{
 				return .(start, end);
 			}
@@ -294,24 +297,27 @@ namespace System.Linq
 
 		public static TSource Average<TCollection, TSource>(this TCollection items)
 			where TCollection : concrete, IEnumerable<TSource>
-			where TSource : operator TSource / int
+			where TSource : operator TSource / TSource
 			where TSource : operator TSource + TSource
+			where TSource : operator explicit int
 		{
 			return InternalAverage<decltype(default(TCollection).GetEnumerator()), TSource>(items.GetEnumerator());
 		}
 
 		public static TSource Average<TEnum, TSource>(this TEnum items)
 			where TEnum : concrete, IEnumerator<TSource>
-			where TSource : operator TSource / int
+			where TSource : operator TSource / TSource
 			where TSource : operator TSource + TSource
+			where TSource : operator explicit int
 		{
 			return InternalAverage<TEnum, TSource>(items);
 		}
 
 		static TSource InternalAverage<TEnum, TSource>(TEnum items)
 			where TEnum : concrete, IEnumerator<TSource>
-			where TSource : operator TSource / int
+			where TSource : operator TSource / TSource
 			where TSource : operator TSource + TSource
+			where TSource : operator explicit int
 		{
 			var count = 0;
 			TSource sum = ?;
@@ -333,7 +339,7 @@ namespace System.Linq
 					count++;
 				}
 
-				return sum / count;
+				return sum / (TSource)count;
 			}
 		}
 
@@ -559,13 +565,13 @@ namespace System.Linq
 			using (var iterator = Iterator.Wrap(items))
 			{
 				var enumerator = iterator.mEnum;
-				while (--index > 0)
+				while (--index >= 0)
 				{
 					if (enumerator.GetNext() case .Err)
 						break;
 				}
 
-				if (index == 0 && enumerator.GetNext() case .Ok(out val))
+				if (index == -1 && enumerator.GetNext() case .Ok(out val))
 					return true;
 			}
 			val = default;

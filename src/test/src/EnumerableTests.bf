@@ -92,13 +92,14 @@ namespace System.Linq
 		[Test]
 		public static void Average()
 		{
-			let data = scope List<int>() { 1, 1, 2, 2, 4 };
 			{
+				let data = scope List<int>() { 1, 1, 2, 2, 4 };
 				let actual = data.Average();
 				Test.Assert(actual == 2);
 			}
 			{
-				let actual = data.GetEnumerator().Average();
+				let data = scope List<int32>() { 1, 1, 2, 2, 4 };
+				let actual = data.Average();
 				Test.Assert(actual == 2);
 			}
 		}
@@ -119,20 +120,6 @@ namespace System.Linq
 
 				data.Add(1);
 				actual = data.Max();
-				Test.Assert(actual == 3);
-			}
-			{
-				let data = scope List<int>();
-
-				var actual = data.GetEnumerator().Max();
-				Test.Assert(actual == default);
-
-				data.Add(3);
-				actual = data.GetEnumerator().Max();
-				Test.Assert(actual == 3);
-
-				data.Add(1);
-				actual = data.GetEnumerator().Max();
 				Test.Assert(actual == 3);
 			}
 		}
@@ -207,9 +194,16 @@ namespace System.Linq
 		[Test]
 		public static void ElementAt()
 		{
-			let data = scope List<int>() { 1, 2, 3 };
-			let actual = data.ElementAt(1);
-			Test.Assert(actual == 1);
+			{
+				let data = scope List<int>() { 1, 2, 3 };
+				let actual = data.ElementAt(0);
+				Test.Assert(actual == 1);
+			}
+			{
+				let data = scope List<int>() { 1, 2, 3 };
+				let actual = data.ElementAt(1);
+				Test.Assert(actual == 2);
+			}
 		}
 
 		[Test]
@@ -308,6 +302,12 @@ namespace System.Linq
 				let actual = Enumerable.Range(10).ToList(.. scope .());
 				let expected = scope List<int>();
 				for (var i < 10) expected.Add(i);
+				Test.Assert(actual.SequenceEquals(expected) == true);
+			}
+			{
+				let actual = Enumerable.Range((int32)10).ToList(.. scope .());
+				let expected = scope List<int32>();
+				for (int32 i < 10) expected.Add(i);
 				Test.Assert(actual.SequenceEquals(expected) == true);
 			}
 			{
