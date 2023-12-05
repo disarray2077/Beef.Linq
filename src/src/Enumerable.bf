@@ -781,11 +781,11 @@ namespace System.Linq
 			using (var iterator = Iterator.Wrap(items))
 			{
 				var enumerator = iterator.mEnum;
-				if (enumerator.GetNext() case .Ok(out val))
-					found = true;
-
 				while (enumerator.GetNext() case .Ok(let temp))
+				{
 					val = temp;
+					found = true;
+				}
 			}
 
 			if (!found)
@@ -822,12 +822,14 @@ namespace System.Linq
 			using (var iterator = Iterator.Wrap(items))
 			{
 				var enumerator = iterator.mEnum;
-				if (enumerator.GetNext() case .Ok(out val) && predicate(val))
-					found = true;
-
 				while (enumerator.GetNext() case .Ok(let temp))
-					if (predicate(val))
+				{
+					if (predicate(temp))
+					{
 						val = temp;
+						found = true;
+					}
+				}
 			}
 
 			if (!found)
@@ -840,7 +842,7 @@ namespace System.Linq
 			where TCollection : concrete, IEnumerable<TSource>
 			where TPredicate : delegate bool(TSource)
 		{
-			if (InternalLast<decltype(default(TCollection).GetEnumerator()), TSource>(items.GetEnumerator(), let val))
+			if (InternalLast<decltype(default(TCollection).GetEnumerator()), TSource, TPredicate>(items.GetEnumerator(), let val, predicate))
 				return val;
 
 			Runtime.FatalError("Sequence contained no elements.");
@@ -850,7 +852,7 @@ namespace System.Linq
 			where TEnum : concrete, IEnumerator<TSource>
 			where TPredicate : delegate bool(TSource)
 		{
-			if (InternalLast<TEnum, TSource>(items, let val))
+			if (InternalLast<TEnum, TSource, TPredicate>(items, let val, predicate))
 				return val;
 
 			Runtime.FatalError("Sequence contained no elements.");
