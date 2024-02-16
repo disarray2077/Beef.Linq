@@ -18,7 +18,11 @@
 
 :heavy_check_mark: `public static TResult Max<TResult>(this IEnumerable<TResult> source);`
 
+:heavy_check_mark: `public static TResult Max<TResult>(this IEnumerable<TResult> source, Func<TSource, TResult> predicate);`
+
 :heavy_check_mark: `public static TResult Min<TResult>(this IEnumerable<TResult> source);`
+
+:heavy_check_mark: `public static TResult Min<TResult>(this IEnumerable<TResult> source, Func<TSource, TResult> predicate);`
 
 :heavy_check_mark: `public static TResult Sum<TResult>(this IEnumerable<TResult> source);`
 

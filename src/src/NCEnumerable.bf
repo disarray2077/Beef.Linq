@@ -24,8 +24,8 @@ namespace System.Linq
 		}
 
 		struct NCWhereEnumerable<TSource, TEnum, TPredicate> : IEnumerable<TSource>, IDisposable
-			where TPredicate : delegate bool(TSource)
 			where TEnum : IEnumerator<TSource>
+			where TPredicate : delegate bool(TSource)
 		{
 			TPredicate mPredicate;
 			NCIterator<TEnum, TSource> mIterator;
@@ -76,9 +76,9 @@ namespace System.Linq
 			return .(items, predicate);
 		}
 
-		struct NCSelectEnumerable<TSource, TEnum, TSelect, TResult> : Iterator<TEnum, TSource>, IEnumerable<TResult>
-			where TSelect : delegate TResult(TSource)
+		struct NCSelectEnumerable<TSource, TEnum, TSelect, TResult> : NCIterator<TEnum, TSource>, IEnumerable<TResult>
 			where TEnum : IEnumerator<TSource>
+			where TSelect : delegate TResult(TSource)
 		{
 			TSelect mDlg;
 

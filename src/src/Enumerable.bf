@@ -381,6 +381,47 @@ namespace System.Linq
 			return max;
 		}
 
+		public static TResult Max<TCollection, TResult, TSource, TPredicate>(this TCollection items, TPredicate predicate)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TPredicate : delegate TResult(TSource)
+			where bool : operator TResult < TResult
+		{
+			return InternalMax<decltype(default(TCollection).GetEnumerator()), TResult, TSource, TPredicate>(items.GetEnumerator(), predicate);
+		}
+
+		public static TResult Max<TEnum, TResult, TSource, TPredicate>(this TEnum items, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate TResult(TSource)
+			where bool : operator TResult < TResult
+		{
+			return InternalMax<TEnum, TResult, TSource, TPredicate>(items, predicate);
+		}
+
+		static TResult InternalMax<TEnum, TResult, TSource, TPredicate>(TEnum items, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate TResult(TSource)
+			where bool : operator TResult < TResult
+		{
+			TResult max = ?;
+			using (var iterator = Iterator.Wrap(items))
+			{
+				var enumerator = iterator.mEnum;
+				switch (enumerator.GetNext())
+				{
+				case .Ok(let val): max = predicate(val);
+				case .Err: return default;
+				}
+
+				while (enumerator.GetNext() case .Ok(let val))
+				{
+					let next = predicate(val);
+					if (max < next)
+						max = next;
+				}
+			}
+			return max;
+		}
+
 		public static TSource Min<TCollection, TSource>(this TCollection items)
 			where TCollection : concrete, IEnumerable<TSource>
 			where bool : operator TSource < TSource
@@ -412,6 +453,47 @@ namespace System.Linq
 				while (enumerator.GetNext() case .Ok(let val))
 				{
 					let next = val;
+					if (next < min)
+						min = next;
+				}
+			}
+			return min;
+		}
+
+		public static TResult Min<TCollection, TResult, TSource, TPredicate>(this TCollection items, TPredicate predicate)
+			where TCollection : concrete, IEnumerable<TSource>
+			where TPredicate : delegate TResult(TSource)
+			where bool : operator TResult < TResult
+		{
+			return InternalMin<decltype(default(TCollection).GetEnumerator()), TResult, TSource, TPredicate>(items.GetEnumerator(), predicate);
+		}
+
+		public static TResult Min<TEnum, TResult, TSource, TPredicate>(this TEnum items, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate TResult(TSource)
+			where bool : operator TResult < TResult
+		{
+			return InternalMin<TEnum, TResult, TSource, TPredicate>(items, predicate);
+		}
+
+		static TResult InternalMin<TEnum, TResult, TSource, TPredicate>(TEnum items, TPredicate predicate)
+			where TEnum : concrete, IEnumerator<TSource>
+			where TPredicate : delegate TResult(TSource)
+			where bool : operator TResult < TResult
+		{
+			TResult min = ?;
+			using (var iterator = Iterator.Wrap(items))
+			{
+				var enumerator = iterator.mEnum;
+				switch (enumerator.GetNext())
+				{
+				case .Ok(let val): min = predicate(val);
+				case .Err: return default;
+				}
+
+				while (enumerator.GetNext() case .Ok(let val))
+				{
+					let next = predicate(val);
 					if (next < min)
 						min = next;
 				}
@@ -1142,7 +1224,7 @@ namespace System.Linq
 				mDlg = dlg;
 			}
 
-			Result<TResult> GetNext() mut
+			public Result<TResult> GetNext() mut
 			{
 				if (mEnum.GetNext() case .Ok(let val))
 					return mDlg(val);
