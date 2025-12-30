@@ -62,7 +62,7 @@ namespace System.Linq
 				return .();
 			}
 
-			struct Enumerator : IEnumerator<int>
+			public struct Enumerator : IEnumerator<int>
 			{
 				int mState = 0;
 

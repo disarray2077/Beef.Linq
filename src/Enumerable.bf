@@ -2143,15 +2143,15 @@ namespace System.Linq
 			{
 				var enumerator = iterator.mEnum;
 
-				if (enumerator.GetNext() case .Ok(let val))
+				if (enumerator.GetNext() case .Ok(let val1))
 				{
-					sum = func(sum, val);
+					sum = func(sum, val1);
 					accumulated = true;
 				}
 
 				if (accumulated)
-					while (enumerator.GetNext() case .Ok(let val))
-						sum = func(sum, val);
+					while (enumerator.GetNext() case .Ok(let val2))
+						sum = func(sum, val2);
 			}
 
 			result = sum;
@@ -3083,7 +3083,7 @@ namespace System.Linq
 			public this(TEnum enumerator, TCompare compare, bool descending)
 			{
 				mCompares = new .();
-				var add = mCompares.GrowUnitialized(1);
+				var add = mCompares.GrowUninitialized(1);
 				add.comparer = compare;
 				add.descending = descending;
 
@@ -3192,7 +3192,7 @@ namespace System.Linq
 				where TKeyDlg2 : delegate TKey2(TSource)
 				where TCompare2 : delegate int(TKey2 lhs, TKey2 rhs)
 			{
-				var add = mCompares.GrowUnitialized(1);
+				var add = mCompares.GrowUninitialized(1);
 				add.comparer = new (l, r) => comparison(keySelect(l), keySelect(r));
 				add.descending = false;
 				return this;
@@ -3203,7 +3203,7 @@ namespace System.Linq
 				where int : operator TKey2 <=> TKey2
 			{
 				let comparison = OrderByComparison<TKey2>.Comparison;
-				var add = mCompares.GrowUnitialized(1);
+				var add = mCompares.GrowUninitialized(1);
 				add.comparer = new (l, r) => comparison(keySelect(l), keySelect(r));
 				add.descending = false;
 				return this;
@@ -3214,7 +3214,7 @@ namespace System.Linq
 				where TKeyDlg2 : delegate TKey2(TSource)
 				where TCompare2 : delegate int(TKey2 lhs, TKey2 rhs)
 			{
-				var add = mCompares.GrowUnitialized(1);
+				var add = mCompares.GrowUninitialized(1);
 				add.comparer = new (l, r) => comparison(keySelect(l), keySelect(r));
 				add.descending = true;
 				return this;
@@ -3225,7 +3225,7 @@ namespace System.Linq
 				where int : operator TKey2 <=> TKey2
 			{
 				let comparison = OrderByComparison<TKey2>.Comparison;
-				var add = mCompares.GrowUnitialized(1);
+				var add = mCompares.GrowUninitialized(1);
 				add.comparer = new (l, r) => comparison(keySelect(l), keySelect(r));
 				add.descending = true;
 				return this;
@@ -3486,8 +3486,8 @@ namespace System.Linq
 				{
 					if (let casted = val as TResult)
 						return .Ok(casted);
-
-					Runtime.FatalError("Specified cast is not valid.");
+					else
+						Runtime.FatalError("Specified cast is not valid.");
 				}
 				return .Err;
 			}
